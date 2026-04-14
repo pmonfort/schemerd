@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.summary       = "Generate Mermaid ER diagrams from ActiveRecord models"
   spec.description   = "Auto-generate Mermaid ERD markdown files from your ActiveRecord schema. " \
                         "Hooks into db:migrate to keep diagrams in sync."
-  spec.homepage      = "https://github.com/pablo/schemerd"
+  spec.homepage      = "https://github.com/pmonfort/schemerd"
   spec.license       = "MIT"
 
   spec.required_ruby_version = ">= 3.0"
