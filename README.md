@@ -1,4 +1,4 @@
-# activerecord-schemerd
+# schemerd
 
 Auto-generate [Mermaid](https://mermaid.js.org/) ER diagrams from your ActiveRecord models. Keeps your schema documentation in sync by regenerating after every migration.
 
@@ -8,7 +8,7 @@ Add to your Gemfile:
 
 ```ruby
 group :development do
-  gem "activerecord-schemerd"
+  gem "schemerd"
 end
 ```
 
