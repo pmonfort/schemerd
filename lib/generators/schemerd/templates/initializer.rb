@@ -1,6 +1,6 @@
 Schemerd.configure do |config|
   # Output directory relative to Rails.root
-  # config.output_directory = "doc"
+  # config.output_directory = "docs"
 
   # Output filename
   # config.output_filename = "erd.md"

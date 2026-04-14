@@ -22,7 +22,7 @@ Run `bundle install`.
 rake schemerd:generate
 ```
 
-This creates `doc/erd.md` with a Mermaid `erDiagram` block containing all your models, columns, and associations.
+This creates `docs/erd.md` with a Mermaid `erDiagram` block containing all your models, columns, and associations.
 
 ### Auto-generate on migrations
 
@@ -48,8 +48,8 @@ This creates `config/initializers/schemerd.rb`. Available options:
 
 ```ruby
 Schemerd.configure do |config|
-  # Output directory relative to Rails.root (default: "doc")
-  config.output_directory = "doc"
+  # Output directory relative to Rails.root (default: "docs")
+  config.output_directory = "docs"
 
   # Output filename (default: "erd.md")
   config.output_filename = "erd.md"

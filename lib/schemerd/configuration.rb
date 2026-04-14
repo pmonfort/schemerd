@@ -10,7 +10,7 @@ module Schemerd
                   :base_class
 
     def initialize
-      @output_directory  = "doc"
+      @output_directory  = "docs"
       @output_filename   = "erd.md"
       @header            = "# Entity Relationship Diagram\n\n" \
                            "Auto-generated from ActiveRecord models. Do not edit manually."
