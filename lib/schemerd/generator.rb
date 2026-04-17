@@ -81,8 +81,8 @@ module Schemerd
 
       models.each do |model|
         lines << "    #{model.name} {"
-        model.columns.each do |col|
-          pk = col.name == "id" ? "PK" : ""
+        sort_columns(model.columns).each do |col|
+          pk = col.name == model.primary_key ? "PK" : ""
           type = col.type || "string"
           lines << "        #{type} #{col.name} #{pk}".rstrip
         end
@@ -91,6 +91,22 @@ module Schemerd
       end
 
       lines
+    end
+
+    TIMESTAMP_COLUMNS = %w[created_at updated_at].freeze
+
+    def sort_columns(columns)
+      pk, timestamps, rest = [], [], []
+      columns.each do |col|
+        if col.name == "id"
+          pk << col
+        elsif TIMESTAMP_COLUMNS.include?(col.name)
+          timestamps << col
+        else
+          rest << col
+        end
+      end
+      pk + rest.sort_by(&:name) + timestamps.sort_by(&:name)
     end
 
     def relationship_line(source, target, assoc)
