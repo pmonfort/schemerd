@@ -68,6 +68,12 @@ Schemerd.configure do |config|
 end
 ```
 
+## Features
+
+- **Consistent column ordering** — PK first, then alphabetical, timestamps (`created_at`, `updated_at`) last
+- **STI support** — child models are filtered out; the `type` column is annotated with subclass names (e.g. `string type "Car, Truck"`)
+- **All association types** — `belongs_to`, `has_many`, `has_one`, and `has_and_belongs_to_many`
+
 ## Output Example
 
 The generated file contains a fenced Mermaid code block:
@@ -80,21 +86,29 @@ Auto-generated from ActiveRecord models. Do not edit manually.
 ```mermaid
 erDiagram
     Post }o--|| User : "author"
-    Comment ||--o{ Post : "comments"
+    Post }o--o{ Tag : "tags"
 
     User {
         integer id PK
-        string name
         string email
+        string name
         datetime created_at
         datetime updated_at
     }
 
     Post {
         integer id PK
-        string title
         text body
+        string title
         integer user_id
+        datetime created_at
+        datetime updated_at
+    }
+
+    Vehicle {
+        integer id PK
+        string name
+        string type "Car, Truck"
         datetime created_at
         datetime updated_at
     }
