@@ -60,7 +60,7 @@ module Schemerd
       model_names = models.map(&:name).to_set
 
       models.each do |model|
-        model.reflect_on_all_associations.each do |assoc|
+        model.reflect_on_all_associations.reject { |a| a.options[:through] }.each do |assoc|
           target_name = assoc.klass.name rescue next
           next unless model_names.include?(target_name)
 
@@ -121,6 +121,8 @@ module Schemerd
         "#{source} ||--o{ #{target} : \"#{assoc.name}\""
       when :has_one
         "#{source} ||--o| #{target} : \"#{assoc.name}\""
+      when :has_and_belongs_to_many
+        "#{source} }o--o{ #{target} : \"#{assoc.name}\""
       end
     end
   end

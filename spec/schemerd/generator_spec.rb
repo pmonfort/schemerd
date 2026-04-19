@@ -97,10 +97,32 @@ RSpec.describe Schemerd::Generator do
       expect(line).to eq('User ||--o| Profile : "profile"')
     end
 
-    it "returns nil for unhandled macros" do
+    # e.g. Doctor -> Appointment -> Patient already covers the path; skip the direct Doctor -> Patient
+    it "skips has_many :through associations" do
+      through_assoc = double("Assoc", macro: :has_many, name: "patients", options: { through: :appointments })
+      appointment_klass = double("Klass", name: "Appointment")
+      direct_assoc = double("Assoc", macro: :has_many, name: "appointments", options: {}, klass: appointment_klass)
+
+      doctor = double("Model",
+        name: "Doctor",
+        reflect_on_all_associations: [through_assoc, direct_assoc],
+      )
+      appointment = double("Model",
+        name: "Appointment",
+        reflect_on_all_associations: [],
+      )
+
+      model_names = [doctor, appointment].map(&:name).to_set
+      lines = generator.send(:associations_section, [doctor, appointment])
+
+      expect(lines.any? { |l| l.include?("Patient") }).to be false
+      expect(lines.any? { |l| l.include?("Appointment") }).to be true
+    end
+
+    it "generates has_and_belongs_to_many line" do
       assoc = double("Assoc", macro: :has_and_belongs_to_many, name: "tags", options: {})
       line = generator.send(:relationship_line, "Post", "Tag", assoc)
-      expect(line).to be_nil
+      expect(line).to eq('Post }o--o{ Tag : "tags"')
     end
   end
 end
