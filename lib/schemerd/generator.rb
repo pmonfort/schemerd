@@ -27,15 +27,26 @@ module Schemerd
       Rails.application.eager_load!
 
       base = @config.base_class.constantize
-      base.descendants
+      all_models = base.descendants
         .reject(&:abstract_class?)
         .reject { |m| excluded?(m.name) }
         .select { |m| m.table_exists? rescue false }
-        .sort_by(&:name)
+
+      @sti_children = Hash.new { |h, k| h[k] = [] }
+      sti, non_sti = all_models.partition { |m| sti_child?(m) }
+      sti.each { |m| @sti_children[m.superclass.name] << m.name }
+
+      non_sti.sort_by(&:name)
     end
 
     def excluded?(model_name)
       @config.excluded_prefixes.any? { |prefix| model_name.start_with?(prefix) }
+    end
+
+    def sti_child?(model)
+      model.superclass != @config.base_class.constantize &&
+        !model.superclass.abstract_class? &&
+        model.table_name == model.superclass.table_name
     end
 
     def build_diagram(models)
@@ -81,10 +92,12 @@ module Schemerd
 
       models.each do |model|
         lines << "    #{model.name} {"
+        subtypes = @sti_children.fetch(model.name, [])
         sort_columns(model.columns).each do |col|
           pk = col.name == model.primary_key ? "PK" : ""
+          comment = col.name == "type" && subtypes.any? ? "\"#{subtypes.sort.join(', ')}\"" : ""
           type = col.type || "string"
-          lines << "        #{type} #{col.name} #{pk}".rstrip
+          lines << "        #{type} #{col.name} #{pk} #{comment}".rstrip
         end
         lines << "    }"
         lines << ""

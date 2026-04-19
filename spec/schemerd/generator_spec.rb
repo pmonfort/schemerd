@@ -125,4 +125,45 @@ RSpec.describe Schemerd::Generator do
       expect(line).to eq('Post }o--o{ Tag : "tags"')
     end
   end
+
+  describe "STI handling" do
+    it "annotates type column with subtypes" do
+      generator.instance_variable_set(:@sti_children, {
+        "Vehicle" => ["Car", "Truck"],
+      })
+
+      model = double("Model",
+        name: "Vehicle",
+        primary_key: "id",
+        columns: [
+          build_column("id", :integer),
+          build_column("type"),
+          build_column("name"),
+        ],
+      )
+
+      lines = generator.send(:entities_section, [model])
+      type_line = lines.find { |l| l.include?("type") }
+
+      expect(type_line).to include('"Car, Truck"')
+    end
+
+    it "does not annotate type column without subtypes" do
+      generator.instance_variable_set(:@sti_children, {})
+
+      model = double("Model",
+        name: "User",
+        primary_key: "id",
+        columns: [
+          build_column("id", :integer),
+          build_column("type"),
+        ],
+      )
+
+      lines = generator.send(:entities_section, [model])
+      type_line = lines.find { |l| l.include?("type") }
+
+      expect(type_line).not_to include('"')
+    end
+  end
 end
