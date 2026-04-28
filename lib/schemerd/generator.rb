@@ -24,6 +24,7 @@ module Schemerd
     private
 
     def load_models
+      ActiveRecord::Base.connection.schema_cache.clear!
       Rails.application.eager_load!
 
       base = @config.base_class.constantize
@@ -31,6 +32,8 @@ module Schemerd
         .reject(&:abstract_class?)
         .reject { |m| excluded?(m.name) }
         .select { |m| m.table_exists? rescue false }
+
+      all_models.each(&:reset_column_information)
 
       @sti_children = Hash.new { |h, k| h[k] = [] }
       sti, non_sti = all_models.partition { |m| sti_child?(m) }
