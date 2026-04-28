@@ -7,14 +7,15 @@ namespace :schemerd do
   end
 end
 
-# Auto-run after migrations in development
 if defined?(Rails) && Rails.env.development?
-  %w[db:migrate db:migrate:up db:migrate:down db:migrate:redo].each do |task_name|
-    next unless Rake::Task.task_defined?(task_name)
+  migration_tasks = %w[db:migrate db:migrate:up db:migrate:down db:migrate:redo db:rollback]
 
-    Rake::Task[task_name].enhance do
-      if Schemerd.configuration.auto_generate
-        Rake::Task["schemerd:generate"].invoke
+  migration_tasks.each do |task|
+    next unless Rake::Task.task_defined?(task)
+
+    Rake::Task[task].enhance do
+      Rake::Task[Rake.application.top_level_tasks.last].enhance do
+        Schemerd.generate if Schemerd.configuration.auto_generate
       end
     end
   end
